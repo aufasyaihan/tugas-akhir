@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { spawn } from "child_process";
 import fs from "fs";
 import axios from "axios";
-import { TestPayload } from "@/app/types/data";
+import { TestPayload } from "@/types/data";
 
 export async function POST(req: Request) {
     try {
@@ -135,6 +135,8 @@ export async function POST(req: Request) {
                             data: {
                                 createdAt: Date.now(),
                                 results: {
+                                    start_time: startTime,
+                                    end_time: endTime,
                                     metrics: {
                                         performance: performance_result,
                                         resource: resourceMetrics,
@@ -151,10 +153,6 @@ export async function POST(req: Request) {
                         })
                     );
                 } catch (err) {
-                    // console.error(
-                    //     "Error fetching Netdata metrics or processing k6 output:",
-                    //     err
-                    // );
                     if (err) {
                         throw new Error("Failed to fetch metrics ");
                     }

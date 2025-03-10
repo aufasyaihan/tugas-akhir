@@ -8,11 +8,13 @@ const config = {
     payload: __ENV.PAYLOAD,
     vus: __ENV.VUS,
     duration: `${__ENV.DURATION}s`,
+    iterations: __ENV.ITERATIONS,
 };
 
 export let options = {
     vus: config.vus,
     duration: config.duration,
+    iterations: config.iterations,
 };
 
 function loadTest() {
