@@ -2,11 +2,15 @@
 
 import axios from 'axios';
 import { useState } from 'react';
-import { TestPayload } from './types/data';
+import { TestPayload } from '../types/data';
+import Dashboard from '@/components/dashboard';
 
 export default function Home() {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
+    
+    console.log(result);
+    
 
     async function runTest() {
         setLoading(true);
@@ -34,22 +38,15 @@ export default function Home() {
     }
 
     return (
-        <div className="flex flex-col items-center p-10">
-            <h1 className="text-2xl font-bold mb-4">k6 Load Test</h1>
+        <main className="container mx-auto">
             <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                 onClick={runTest}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md"
-                disabled={loading}
             >
-                {loading ? 'Running...' : 'Start Load Test'}
+                Run Test
             </button>
-
-            {result && (
-                <div className="mt-4 p-4 border rounded-lg bg-gray-800">
-                    <h2 className="text-lg font-semibold">Test Results</h2>
-                    <pre className="text-sm">{JSON.stringify(result, null, 2)}</pre>
-                </div>
-            )}
-        </div>
-    );
+            {loading && <p>Loading...</p>}
+            {result && <Dashboard testResults={result} />}
+        </main>
+      );
 }
