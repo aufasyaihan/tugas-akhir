@@ -135,16 +135,11 @@ export async function POST(req: Request) {
                         }
                     );
 
-                    console.dir(cpuResponse.data, { depth: 10000 });
-                    console.dir(ramResponse.data, { depth: 10000 });
-
-                    // Process the Prometheus response format
                     const resourceMetrics = {
                         cpu: cpuResponse.data,
                         ram: ramResponse.data,
                     };
 
-                    // Calculate average CPU usage from time series data
                     let avgCpuUsage = 0;
                     if (cpuResponse.data.data.result.length > 0 && 
                         cpuResponse.data.data.result[0].values.length > 0) {
@@ -155,7 +150,6 @@ export async function POST(req: Request) {
                             sum + value, 0) / cpuValues.length;
                     }
 
-                    // Calculate average Memory usage from time series data
                     let avgMemUsage = 0;
                     if (ramResponse.data.data.result.length > 0 && 
                         ramResponse.data.data.result[0].values.length > 0) {
