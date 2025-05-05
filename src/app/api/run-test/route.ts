@@ -14,7 +14,7 @@ export async function POST(req: Request) {
             );
         }
 
-        const NETDATA_URL = "http://localhost:19999/api/v2/data";
+        const PROMETHEUS_URL = "http://localhost:9090/api/v1";
         const scriptPath = "public/scripts/k6-test-template.js";
 
         const configData: TestPayload = {
@@ -111,23 +111,60 @@ export async function POST(req: Request) {
                         ),
                     };
 
+                    // Fetch CPU usage from Prometheus using query_range endpoint
                     const cpuResponse = await axios.get(
-                        `${NETDATA_URL}?scope_contexts=app.cpu_utilization&instances=app.npm_cpu_utilization&format=json&after=${startTime}&before=${endTime}`
-                    );
-                    const ramResponse = await axios.get(
-                        `${NETDATA_URL}?scope_contexts=app.mem_usage&instances=app.npm_mem_usage&format=json&after=${startTime}&before=${endTime}`
+                        `${PROMETHEUS_URL}/query_range`, {
+                            params: {
+                                query: 'process_cpu_seconds_total{job="node"}',
+                                start: startTime,
+                                end: endTime,
+                                step: '1s'  // Step size for data points
+                            }
+                        }
                     );
 
+                    // Fetch Memory usage from Prometheus
+                    const ramResponse = await axios.get(
+                        `${PROMETHEUS_URL}/query_range`, {
+                            params: {
+                                query: 'process_resident_memory_bytes{job="node"}',
+                                start: startTime,
+                                end: endTime,
+                                step: '1s'  // Step size for data points
+                            }
+                        }
+                    );
+
+                    console.dir(cpuResponse.data, { depth: 10000 });
+                    console.dir(ramResponse.data, { depth: 10000 });
+
+                    // Process the Prometheus response format
                     const resourceMetrics = {
-                        cpu: cpuResponse.data.result,
-                        ram: ramResponse.data.result,
+                        cpu: cpuResponse.data,
+                        ram: ramResponse.data,
                     };
 
-                    const avgCpuUsage =
-                        cpuResponse.data.view.dimensions.sts.avg[0];
+                    // Calculate average CPU usage from time series data
+                    let avgCpuUsage = 0;
+                    if (cpuResponse.data.data.result.length > 0 && 
+                        cpuResponse.data.data.result[0].values.length > 0) {
+                        const cpuValues = cpuResponse.data.data.result[0].values.map(
+                            (item: [number, string]) => parseFloat(item[1])
+                        );
+                        avgCpuUsage = cpuValues.reduce((sum: number, value: number) => 
+                            sum + value, 0) / cpuValues.length;
+                    }
 
-                    const avgMemUsage =
-                        ramResponse.data.view.dimensions.sts.avg[0];
+                    // Calculate average Memory usage from time series data
+                    let avgMemUsage = 0;
+                    if (ramResponse.data.data.result.length > 0 && 
+                        ramResponse.data.data.result[0].values.length > 0) {
+                        const ramValues = ramResponse.data.data.result[0].values.map(
+                            (item: [number, string]) => parseFloat(item[1])
+                        );
+                        avgMemUsage = ramValues.reduce((sum: number, value: number) => 
+                            sum + value, 0) / ramValues.length;
+                    }
 
                     resolve(
                         NextResponse.json({
@@ -166,7 +203,6 @@ export async function POST(req: Request) {
             });
         });
     } catch (error) {
-        // console.error(error);
         return NextResponse.json({ message: error }, { status: 500 });
     }
 }

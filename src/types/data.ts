@@ -2,15 +2,7 @@ export interface TestResult {
     meta: { code: number; message: string };
     data: {
         createdAt: number;
-        results: {
-            start_time: number;
-            end_time: number;
-            metrics: {
-                performance: PerformanceMetrics;
-                resource: ResourceMetrics;
-            };
-            summary: Summary;
-        };
+        results: Results;
     };
 }
 
@@ -63,10 +55,29 @@ export interface Tags {
 }
 
 export interface ResourceMetrics {
-    cpu: ResourceData;
-    ram: ResourceData;
+    cpu: PrometheusData;
+    ram: PrometheusData;
 }
 
+// Prometheus data structure
+export interface PrometheusData {
+    status: string;
+    data: {
+        resultType: string;
+        result: PrometheusResult[];
+    };
+}
+
+export interface PrometheusResult {
+    metric: {
+        [key: string]: string;
+        job: string;
+        instance: string;
+    };
+    values: [number, string][]; // [timestamp, value]
+}
+
+// Keeping old type for compatibility
 export interface ResourceData {
     labels: string[];
     data: number[][];
@@ -86,4 +97,14 @@ export interface Performance {
 export interface Resource {
     cpu_usage: number;
     ram_usage: number;
+}
+
+export interface Results {
+    start_time: number;
+    end_time: number;
+    metrics: {
+        performance: PerformanceMetrics;
+        resource: ResourceMetrics;
+    };
+    summary: Summary;
 }

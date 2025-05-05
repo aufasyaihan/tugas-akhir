@@ -18,9 +18,9 @@ export default function Home() {
 
         const payload: TestPayload = {
             method: "GET",
-            port: 3001,
+            port: 3002,
             vus: 10,
-            duration: 10
+            duration: 30
         };
 
         try {
@@ -30,6 +30,8 @@ export default function Home() {
 
             const data = await res.data;
             setResult(data);
+            console.log(data);
+            
         } catch (error) {
             console.error('Error:', error);
         } finally {

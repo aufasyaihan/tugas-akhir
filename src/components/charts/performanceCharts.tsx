@@ -17,10 +17,12 @@ import {
 } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatTime } from "@/lib/utils";
-import { PerformanceMetrics } from "@/types/data";
+import { Results } from "@/types/data";
 
-export default function PerformanceCharts ({ data }: { data: PerformanceMetrics }) {
+export default function PerformanceCharts ({ data }: { data : Results }) {
   if (!data) return <div>No performance data available</div>;
+
+  const metrics = data.metrics.performance;
 
   return (
       <Tabs defaultValue="duration" className="w-full">
@@ -41,7 +43,7 @@ export default function PerformanceCharts ({ data }: { data: PerformanceMetrics 
                   <CardContent className="h-96">
                       <ResponsiveContainer width="100%" height="100%">
                           <LineChart
-                              data={data.http_req_duration.data}
+                              data={metrics.http_req_duration.data}
                               margin={{
                                   top: 5,
                                   right: 30,
@@ -92,7 +94,7 @@ export default function PerformanceCharts ({ data }: { data: PerformanceMetrics 
                   <CardContent className="h-96">
                       <ResponsiveContainer width="100%" height="100%">
                           <LineChart
-                              data={data.http_req_failed.data}
+                              data={metrics.http_req_failed.data}
                               margin={{
                                   top: 5,
                                   right: 30,
@@ -143,7 +145,7 @@ export default function PerformanceCharts ({ data }: { data: PerformanceMetrics 
                   <CardContent className="h-96">
                       <ResponsiveContainer width="100%" height="100%">
                           <LineChart
-                              data={data.http_reqs.data}
+                              data={metrics.http_reqs.data}
                               margin={{
                                   top: 5,
                                   right: 30,

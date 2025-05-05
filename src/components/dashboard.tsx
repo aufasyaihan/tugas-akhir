@@ -16,7 +16,7 @@ export default function Dashboard({
                         Performance Metrics
                     </h2>
                     <PerformanceCharts
-                        data={testResults.data.results.metrics.performance}
+                        data={testResults.data.results}
                     />
                 </div>
 
@@ -25,7 +25,7 @@ export default function Dashboard({
                         Resource Usage
                     </h2>
                     <ResourceCharts
-                        data={testResults.data.results.metrics.resource}
+                        data={testResults.data.results}
                     />
                 </div>
             </div>

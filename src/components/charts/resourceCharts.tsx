@@ -17,27 +17,44 @@ import {
 } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatResourceData, formatTime } from "@/lib/utils";
-import { ResourceMetrics } from "@/types/data";
+import { Results } from "@/types/data";
 
-export default function ResourceCharts({ data }: { data: ResourceMetrics }) {
+export default function ResourceCharts({ data }: { data: Results }) {
     if (!data) return <div>No resource data available</div>;
 
-    const cpuData = formatResourceData(data.cpu.data);
-    const ramData = formatResourceData(data.ram.data);
+    // Extract metrics from Prometheus formatted data
+    const cpuData = formatResourceData(data.metrics.resource.cpu);
+    const ramData = formatResourceData(data.metrics.resource.ram);
 
     return (
         <Tabs defaultValue="cpu" className="w-full">
+          <Card>
+            <CardHeader>
+              <CardTitle>Summary (Avg.)</CardTitle>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col">
+                    <h2 className="text-lg font-bold">CPU Usage</h2>
+                    <p>{data.summary.resource.cpu_usage.toFixed(2)}%</p>
+                  </div>
+                  <div className="flex flex-col">
+                    <h2 className="text-lg font-bold">Memory Usage</h2>
+                    <p>{(data.summary.resource.ram_usage / (1024 * 1024)).toFixed(2)} MB</p>
+                  </div>
+                </div>
+              </CardContent>
+            </CardHeader>
+          </Card>
             <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="cpu">CPU Usage</TabsTrigger>
                 <TabsTrigger value="ram">Memory Usage</TabsTrigger>
             </TabsList>
-
             <TabsContent value="cpu">
                 <Card>
                     <CardHeader>
                         <CardTitle>CPU Usage</CardTitle>
                         <CardDescription>
-                            Percentage of CPU utilization over time
+                            CPU utilization over time
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="h-96">
@@ -63,38 +80,18 @@ export default function ResourceCharts({ data }: { data: ResourceMetrics }) {
                                 <Tooltip
                                     labelFormatter={formatTime}
                                     formatter={(value: number, name) => {
-                                        // Add appropriate unit
-
                                         return [`${value.toFixed(2)}%`, name];
                                     }}
                                 />
                                 <Legend />
                                 <Line
                                     type="monotone"
-                                    dataKey="user"
-                                    stroke="#0088FE"
-                                    strokeWidth={2}
-                                    dot={false}
-                                    activeDot={{ r: 6 }}
-                                    name="User"
-                                />
-                                <Line
-                                    type="monotone"
-                                    dataKey="system"
-                                    stroke="#FF8042"
-                                    strokeWidth={2}
-                                    dot={false}
-                                    activeDot={{ r: 6 }}
-                                    name="System"
-                                />
-                                <Line
-                                    type="monotone"
-                                    dataKey="total"
+                                    dataKey="value"
                                     stroke="#8884d8"
                                     strokeWidth={2}
                                     dot={false}
                                     activeDot={{ r: 6 }}
-                                    name="Total"
+                                    name="CPU Usage"
                                 />
                             </LineChart>
                         </ResponsiveContainer>
@@ -133,7 +130,7 @@ export default function ResourceCharts({ data }: { data: ResourceMetrics }) {
                                 <Tooltip
                                     labelFormatter={formatTime}
                                     formatter={(value: number, name) => {
-                                        return [`${value.toFixed(2)} MB`, name];
+                                        return [`${(value / (1024 * 1024)).toFixed(2)} MB`, name];
                                     }}
                                 />
                                 <Legend />
@@ -144,7 +141,7 @@ export default function ResourceCharts({ data }: { data: ResourceMetrics }) {
                                     strokeWidth={2}
                                     dot={false}
                                     activeDot={{ r: 6 }}
-                                    name="Used Memory"
+                                    name="Memory Usage"
                                 />
                             </LineChart>
                         </ResponsiveContainer>
