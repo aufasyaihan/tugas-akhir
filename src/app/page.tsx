@@ -4,25 +4,16 @@ import axios from "axios";
 import { useState } from "react";
 import { TestPayload } from "../types/data";
 import Dashboard from "@/components/dashboard";
-import { Button } from "@/components/ui/button";
 import LoadingSkeleton from "@/components/dashboard-loading";
+import { TestForm } from "@/components/test-form";
 
 export default function Home() {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
 
-    console.log(result);
-
-    async function runTest() {
+    async function runTest(payload: TestPayload) {
         setLoading(true);
         setResult(null);
-
-        const payload: TestPayload = {
-            method: "GET",
-            port: 3002,
-            vus: 10,
-            duration: 30,
-        };
 
         try {
             const res = await axios.post("api/run-test/", {
@@ -31,7 +22,6 @@ export default function Home() {
 
             const data = await res.data;
             setResult(data);
-            console.log(data);
         } catch (error) {
             console.error("Error:", error);
         } finally {
@@ -45,15 +35,7 @@ export default function Home() {
                 <h1 className="text-3xl font-bold">
                     Test Performance Dashboard
                 </h1>
-
-                <Button
-                    variant="default"
-                    className="w-fit"
-                    onClick={runTest}
-                    disabled={loading}
-                >
-                    Run Test
-                </Button>
+                <TestForm onSubmit={runTest} loading={loading} />
             </div>
             {loading && <LoadingSkeleton />}
             {result && <Dashboard testResults={result} />}
